@@ -32,7 +32,7 @@ export default function NavbarWithBlurBg() {
               alt="University Logo"
               className="w-10 h-10 object-contain"
             />
-            <h1 className="text-xl md:text-2xl text-white font-bold">
+            <h1 className="text-xl md:text-2xl text-white text-shadow-md font-bold">
               Gopalganj Science and Technology University
             </h1>
           </div>

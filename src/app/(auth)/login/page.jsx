@@ -92,7 +92,7 @@ export default function Login() {
           </div>
 
           {/* Google reCAPTCHA */}
-          <div className="mb-4">
+          <div className="mb-4 ">
             <ReCAPTCHA
               sitekey="6LcoHbcrAAAAAPvsYbfgZXdQjC-1hmnqNk-zkqhc" // replace with your v2 site key
               onChange={(value) => setCaptchaValue(value)}
