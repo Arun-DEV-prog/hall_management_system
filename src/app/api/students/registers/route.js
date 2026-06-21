@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 export async function POST(req) {
   try {
-    const { student_number, first_name, last_name, email, password } =
+    const { student_number, first_name, last_name, email, password, phone, department, intake_year, gender } =
       await req.json();
 
     if (!student_number || !first_name || !email || !password) {
@@ -13,11 +13,11 @@ export async function POST(req) {
       );
     }
 
-    const db = await connectDB();
+    const db = connectDB();
 
     // Check if email or student_number already exists
-    const [existing] = await db.execute(
-      "SELECT * FROM students WHERE email = ? OR student_number = ?",
+    const { rows: existing } = await db.query(
+      "SELECT * FROM students WHERE email = $1 OR student_number = $2",
       [email, student_number]
     );
     if (existing.length > 0) {
@@ -30,9 +30,19 @@ export async function POST(req) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert student
-    await db.execute(
-      "INSERT INTO students (student_number, first_name, last_name, email, password) VALUES (?, ?, ?, ?, ?)",
-      [student_number, first_name, last_name || "", email, hashedPassword]
+    await db.query(
+      "INSERT INTO students (student_number, first_name, last_name, email, password, phone, department, intake_year, gender) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+      [
+        student_number,
+        first_name,
+        last_name || "",
+        email,
+        hashedPassword,
+        phone || null,
+        department || null,
+        intake_year ? parseInt(intake_year, 10) : null,
+        gender || null
+      ]
     );
 
     return new Response(

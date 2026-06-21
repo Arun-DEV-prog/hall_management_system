@@ -1,57 +1,54 @@
 "use client";
+
 import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import Link from "next/link";
-import ReCAPTCHA from "react-google-recaptcha";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [captchaValue, setCaptchaValue] = useState(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setError("");
     // Basic validation
     if (!email) {
-      alert("Please enter your email.");
+      setError("Please enter your email.");
       return;
     }
-    // Simple email regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
+      setError("Please enter a valid email address.");
       return;
     }
     if (!password) {
-      alert("Please enter your password.");
-      return;
-    }
-    if (!captchaValue) {
-      alert("Please complete the captcha!");
+      setError("Please enter your password.");
       return;
     }
 
-    // POST request
     setLoading(true);
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch("/api/students/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, captcha: captchaValue }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
 
       if (response.ok) {
-        alert("Login successful!");
-        // redirect or handle successful login
+        router.push("/Dashboard/students");
       } else {
-        alert(data.message || "Login failed!");
+        setError(data.message || "Login failed!");
       }
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong. Try again.");
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -91,13 +88,12 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Google reCAPTCHA */}
-          <div className="mb-4 ">
-            <ReCAPTCHA
-              sitekey="6LcoHbcrAAAAAPvsYbfgZXdQjC-1hmnqNk-zkqhc" // replace with your v2 site key
-              onChange={(value) => setCaptchaValue(value)}
-            />
-          </div>
+          {/* Error message */}
+          {error && (
+            <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+              {error}
+            </div>
+          )}
 
           {/* Login Button */}
           <button

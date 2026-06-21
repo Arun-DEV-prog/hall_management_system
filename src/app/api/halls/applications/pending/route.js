@@ -3,7 +3,7 @@ import { connectDB } from "../../../../../lib/db";
 
 export async function GET() {
   try {
-    const db = await connectDB();
+    const db = connectDB();
 
     const sql = `
       SELECT 
@@ -23,7 +23,7 @@ export async function GET() {
       ORDER BY ha.applied_at DESC
     `;
 
-    const [rows] = await db.execute(sql);
+    const { rows } = await db.query(sql);
 
     return NextResponse.json(
       { message: "Pending applications fetched", data: rows },

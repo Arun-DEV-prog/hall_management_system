@@ -24,12 +24,13 @@ export async function POST(request) {
     //}
 
     // 2️⃣ Connect to DB
-    const db = await connectDB();
+    const db = connectDB();
 
     // 3️⃣ Check if student exists
-    const [rows] = await db.execute("SELECT * FROM students WHERE email = ?", [
-      email,
-    ]);
+    const { rows } = await db.query(
+      "SELECT * FROM students WHERE email = $1",
+      [email]
+    );
 
     if (rows.length === 0) {
       return NextResponse.json(
@@ -57,10 +58,20 @@ export async function POST(request) {
     );
 
     // 6️⃣ Return success response
-    return NextResponse.json(
+    const response = NextResponse.json(
       { message: "Login successful!", token },
       { status: 200 }
     );
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60,
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("POST /students/login ERROR:", error);
     return NextResponse.json(
